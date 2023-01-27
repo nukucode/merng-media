@@ -5,10 +5,54 @@ import { UserInputError } from "apollo-server";
 
 import { SECRET_KEY } from "../../config.js";
 
-import { validateRegisterInput , validateLoginInput} from "../../utils/validators.js";
+import {
+  validateRegisterInput,
+  validateLoginInput,
+} from "../../utils/validators.js";
+
+function generateToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    },
+    SECRET_KEY,
+    { expiresIn: "1h" }
+  );
+}
 
 export default {
   Mutation: {
+    async login(_, { username, password }, context, info) {
+      const { errors, valid } = validateLoginInput(username, password);
+
+      if (!valid) {
+        throw new UserInputError("Errors", { errors });
+      }
+      const user = await User.findOne({ username });
+
+      if (!user) {
+        errors.general = "User not found";
+        throw new UserInputError("User not fount", { errors });
+      }
+
+      const match = await bcrypt.compare(password, user.password);
+
+      if (!match) {
+        errors.general = "Wrong crendetials";
+        throw new UserInputError("Wrong crendetials", { errors });
+      }
+
+      const token = generateToken(user);
+
+      return {
+        ...user._doc,
+        id: user._id,
+        token,
+      };
+    },
+
     async register(
       _,
       { registerInput: { username, email, password, confirmPassword } },
