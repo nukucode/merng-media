@@ -5,10 +5,13 @@ import resolvers from "./graphql/resolvers/index.js";
 import User from "./models/User.js";
 import { MONGODB } from "./config.js";
 
+import { PubSub } from "graphql-subscriptions";
+const pubsub = new PubSub();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => ({ req }),
+  context: ({ req }) => ({ req, pubsub }),
 });
 
 mongoose.set("strictQuery", false);
