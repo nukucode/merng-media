@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import MenuBar from "./components/MenuBar";
+import SinglePost from "./pages/SinglePost";
 
 /* Provider */
 import { AuthProvider } from "./context/auth";
@@ -24,6 +25,7 @@ function App() {
           <MenuBar />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/posts/:postId" element={<SinglePost />} />
             <Route exact element={<PrivateRoute />}>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
